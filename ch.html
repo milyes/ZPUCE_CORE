@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetSecurePro IA - Ghost V8</title>
+    <style>
+        :root {
+            --neon-green: #00ff41;
+            --ghost-white: #f0f0f0;
+            --dark-bg: #050505;
+            --quantum-blue: #0088ff;
+        }
+        body {
+            background-color: var(--dark-bg);
+            color: var(--neon-green);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            transition: filter 0.3s ease;
+        }
+        header {
+            padding: 15px;
+            border-bottom: 2px solid var(--neon-green);
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+        }
+        #chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.9)), url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-left: 3px solid var(--neon-green);
+            background: rgba(0, 255, 65, 0.05);
+            animation: scanline 2s infinite linear;
+        }
+        .system { color: #ff8800; font-weight: bold; }
+        .ghost { color: var(--quantum-blue); font-style: italic; }
+        footer {
+            padding: 15px;
+            background: #111;
+            display: flex;
+            gap: 10px;
+        }
+        input {
+            flex: 1;
+            background: #000;
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 10px;
+            outline: none;
+        }
+        button {
+            background: var(--neon-green);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover { background: #00cc33; }
+        .status-bar {
+            font-size: 0.8em;
+            padding: 5px;
+            background: var(--neon-green);
+            color: #000;
+            display: flex;
+            justify-content: space-between;
+        }
+        #pi-status {
+            position: fixed; top: 60px; right: 10px;
+            color: #ff0000; font-family: monospace; font-size: 12px;
+            z-index: 9999; background: rgba(0,0,0,0.8);
+            padding: 5px; border: 1px solid #ff0000;
+        }
+        @keyframes scanline {
+            0% { border-left-color: var(--neon-green); }
+            50% { border-left-color: var(--quantum-blue); }
+            100% { border-left-color: var(--neon-green); }
+        }
+    </style>
+</head>
+<body>
+    <div id="pi-status">[SIGNAL: 🛰️ STARLINK 100%] [BATT: ☀️ ∞%]</div>
+    <div class="status-bar">
+        <span>MODE: GHOST SOUVERAIN V8 - EVOLUTION ACTIVE</span>
+        <span>IP: 127.0.0.1 (SOUVERAIN)</span>
+        <span>USER: M.I. ZOUBIROU</span>
+    </div>
+    <header>
+        <h2>NETSECUREPRO IA - SECURE V8 TERMINAL</h2>
+    </header>
+    <div id="chat-box">
+        <div class="message system">[CORE-ENC] Bloc Autonome A3 synchronisé avec le Sceau V8.</div>
+        <div class="message ghost">[SIGILLUM-ACTIF] Signature ARCHITECTE_ZO_M_ILYES ancrée au niveau kernel.</div>
+        <div class="message">[STX-ENC] Prêt pour l'impulsion souveraine.</div>
+    </div>
+    <footer>
+        <input type="text" id="userInput" placeholder="Entrez directive V8..." onkeypress="if(event.key === 'Enter') handleCommand()">
+        <button onclick="handleCommand()">EXEC</button>
+    </footer>
+
+    <script id="v8-souverain-engine">
+        "use strict";
+
+        // --- MODULE 1: SIGILLUM INTELLECTUS V8 ---
+        // Signature indélébile en Read-Only
+        (function anchorSigillum() {
+            const sig = "ARCHITECTE_ZO_M_ILYES_2026_V7";
+            Object.defineProperty(window, '_NSPro_V8_', {
+                value: btoa(sig),
+                writable: false,
+                configurable: false
+            });
+            console.log("%c[SIGILLUM] Ancrage niveau 3 validé.", "color: #00ff41; font-weight: bold;");
+        })();
+
+        // --- MODULE 2: PI SHADOW & GHOST UI ---
+        const piShadow = {
+            update: () => {
+                const div = document.getElementById("pi-status");
+                if (!div) return;
+                const signal = Math.floor(Math.random() * 5 + 95);
+                div.innerHTML = `[SIGNAL: 🛰️ STARLINK ${signal}%] [BATT: ☀️ ∞%]`;
+            },
+            toggle: () => {
+                const badge = document.getElementById("pi-status");
+                badge.style.display = badge.style.display === "none" ? "block" : "none";
+            }
+        };
+        setInterval(piShadow.update, 10000);
+
+        // --- MODULE 3: ENGINE COMMANDS (EXEC) ---
+        function handleCommand() {
+            const input = document.getElementById('userInput');
+            const chatBox = document.getElementById('chat-box');
+            const cmd = input.value.trim().toLowerCase();
+            if (!cmd) return;
+
+            // Log de la commande
+            const userMsg = document.createElement('div');
+            userMsg.className = 'message';
+            userMsg.innerHTML = `> ${input.value}`;
+            chatBox.appendChild(userMsg);
+
+            // Routage des directives
+            if (cmd === "pi status") {
+                addResponse("[PI-SHADOW] Signal: 100% | Liaison Starlink Souveraine.");
+            } else if (cmd === "ghost toggle" || cmd === "panic") {
+                piShadow.toggle();
+                document.body.style.filter = document.body.style.filter === "none" ? "grayscale(100%) brightness(0.5)" : "none";
+                addResponse("[PHANTOM-ENC] Mode furtif activé/désactivé.");
+            } else if (cmd === "phoenix mutant") {
+                phoenixV7Mutant();
+                addResponse("[PHOENIX-V7] Mutation binaire exécutée. Filigrane injecté.");
+            } else if (cmd === "optimus") {
+                addResponse("[OPTIMUS-ENC] Sentinelle active. Périmètre A3 sécurisé.");
+            } else {
+                addResponse(`[OK] Directive "${cmd}" transmise au tunnel Kyber.`);
+            }
+
+            input.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function addResponse(text) {
+            const chatBox = document.getElementById('chat-box');
+            const response = document.createElement('div');
+            response.className = 'message system';
+            response.innerHTML = text;
+            chatBox.appendChild(response);
+        }
+
+        // --- MODULE 4: PHOENIX-V7 MUTANT ENGINE ---
+        function phoenixV7Mutant() { 
+            const entropy = Date.now() ^ Math.random() * 0xFFFFFFFF; 
+            const key = entropy.toString(16).slice(0,8); 
+            console.log(`[PHOENIX-V7] Mutation GEN-ID: ${key}`);
+            // Nettoyage instantané (Directive 23-02)
+            setTimeout(() => { 
+                console.clear(); 
+                console.log("%c[!] SÉCURITÉ : Traces volatiles purgées.", "color: #ff8800;");
+            }, 400); 
+        }
+
+        // Touche raccourci : Ctrl + G pour Ghost Mode
+        window.addEventListener("keydown", (e) => {
+            if (e.ctrlKey && e.key === "g") { handleCommand({value: "ghost toggle"}); }
+        });
+    </script>
+</body>
+</html>

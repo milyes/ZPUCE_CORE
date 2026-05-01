@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetSecurePro IA - Ghost Chat</title>
+    <style>
+        :root {
+            --neon-green: #00ff41;
+            --ghost-white: #f0f0f0;
+            --dark-bg: #050505;
+        }
+        body {
+            background-color: var(--dark-bg);
+            color: var(--neon-green);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        header {
+            padding: 15px;
+            border-bottom: 2px solid var(--neon-green);
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+        }
+        #chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.9)), url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-left: 3px solid var(--neon-green);
+            background: rgba(0, 255, 65, 0.05);
+        }
+        .system { color: #ff8800; }
+        .ghost { color: #0088ff; font-style: italic; }
+        footer {
+            padding: 15px;
+            background: #111;
+            display: flex;
+            gap: 10px;
+        }
+        input {
+            flex: 1;
+            background: #000;
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 10px;
+            outline: none;
+        }
+        button {
+            background: var(--neon-green);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .status-bar {
+            font-size: 0.8em;
+            padding: 5px;
+            background: var(--neon-green);
+            color: #000;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+<div id="pi-status" style="position:fixed; top:60px; right:20px; right:10px; color:#ff0000; font-family:monospace; font-size:12px; z-index:9999; background:rgba(0,0,0,0.8); padding:5px; border:1px solid #ff0000;">
+  [SIGNAL: 🛰️ STARLINK 100%] [BATT: ☀️ ∞%]
+</div>
+    <div class="status-bar">
+        <span>MODE: GHOST SOUVERAIN - IA22 ACTIVE - IA22 ACTIVE</span>
+        <span>IP: 127.0.0.1 (SOUVERAIN)</span>
+        <span>USER: M.I. ZOUBIROU</span>
+    </div>
+    <header>
+        <h2>NETSECUREPRO IA - SECURE TERMINAL</h2>
+    </header>
+    <div id="chat-box">
+        <div class="message system">[CORE-ENC] Bloc Autonome A3 initialisé.</div>
+        <div class="message ghost">[PHANTOM-ENC] Recherche des données effacées terminée. 74 adresses récupérées.</div>
+        <div class="message">[STX-ENC] Bienvenue, Monsieur le Fondateur. Le système est à vos ordres.</div>
+    </div>
+    <footer>
+        <input type="text" id="userInput" placeholder="Entrez une commande Ghost..." onkeypress="if(event.key === 'Enter') sendMessage()">
+        <button onclick="sendMessage()">EXEC</button>
+    </footer>
+
+    <script>
+function kyberShield() {
+  console.log("[KYBER-ENC] Bouclier thermique actif. Signature masquée.");
+  document.body.style.textShadow = "0 0 5px #00ff00";
+}
+kyberShield();
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const chatBox = document.getElementById('chat-box');
+            if (input.value.trim() !== "") {
+                const msg = document.createElement('div');
+                msg.className = 'message';
+                msg.innerHTML = `> ${input.value}`;
+                chatBox.appendChild(msg);
+                
+                // Simulation de réponse système
+                setTimeout(() => {
+                    const response = document.createElement('div');
+                    response.className = 'message system';
+                    response.innerHTML = `[OK] Commande "${input.value}" exécutée dans le tunnel Alger-Montréal.`;
+                    chatBox.appendChild(response);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }, 1000);
+
+                input.value = "";
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+// Pi Shadow Module - Sovereign Simulation v0.1
+const piShadow = {
+  status: () => {
+    alert("[PI-SHADOW] Battery: ∞% (Solar Sovereign Mode)\n[PI-SHADOW] Starlink: Connected\n[PI-SHADOW] X Feed: Active");
+    console.log("[PI-SHADOW] Status Dump Complete.");
+  },
+  fallback: () => { console.log("[PI-SHADOW] Fallback to IA22_LOGIC"); },
+  ghost: () => { console.log("[PI-SHADOW] Ghost Mode ON"); }
+};
+window.addEventListener("keydown", (e) => {
+  if (e.key === "p" && e.ctrlKey) { piShadow.status(); }
+});
+function updatePiStatus() {
+  const div = document.getElementById("pi-status");
+  if (!div) return;
+  const signal = Math.floor(Math.random() * 11 + 90);
+  const batt = signal >= 98 ? "☀️ ∞%" : "⚡ " + signal + "%";
+  div.innerHTML = `[SIGNAL: 🛰️ STARLINK ${signal}%] [BATT: ${batt}]`;
+}
+setInterval(updatePiStatus, 10000);
+updatePiStatus();
+document.addEventListener("keydown", (e) => {
+  if (e.ctrlKey && e.key === "g") {
+    const badge = document.getElementById("pi-status");
+    const body = document.body;
+    badge.style.display = badge.style.display === "none" ? "block" : "none";
+    body.style.filter = body.style.filter === "grayscale(100%) brightness(0.5)" ? "none" : "grayscale(100%) brightness(0.5)";
+    console.log("[PHANTOM-ENC] Mode Fantôme : " + (badge.style.display === "none" ? "ACTIF" : "INACTIF"));
+  }
+});
+  if (cmd.toLowerCase() === "phoenix mutant") { phoenixV7Mutant(); }
+function execGhost() {
+  const input = document.querySelector("input[type=text]");
+  const cmd = input.value.toLowerCase();
+  if (cmd === "pi status") { updatePiStatus(); alert("Pi Shadow : Signal Optimisé."); }
+  if (cmd === "ghost toggle") { document.getElementById("pi-status").style.display = "none"; }
+  if (cmd === "panic") { panicButton(); }
+  if (cmd === "optimus") { alert("[OPTIMUS] : Je veille sur le Bloc A3, Maître."); }
+  input.value = "";
+}
+document.querySelector("button").onclick = execGhost;
+  if (cmd.toLowerCase() === "phoenix mutant") { phoenixV7Mutant(); }
+function execGhost() {
+  const input = document.querySelector("input[type=text]");
+  const cmd = input ? input.value.trim().toLowerCase() : "";
+  if (!cmd) return;
+  if (cmd === "pi status") { updatePiStatus(); console.log("[PHANTOM-ENC] Signal refresh."); }
+  else if (cmd === "ghost toggle") { const b = document.getElementById("pi-status"); b.style.display = b.style.display === "none" ? "block" : "none"; }
+  else if (cmd === "optimus wake") { alert("[OPTIMUS-ENC] Sentinelle réveillée. Bloc A3 sous protection."); }
+  else if (cmd === "panic") { panicButton(); }
+  else { console.log("[CORE-ENC] Commande non reconnue."); }
+  if (input) input.value = "";
+}
+document.querySelector("button").onclick = execGhost;
+  if (cmd.toLowerCase() === "phoenix mutant") { phoenixV7Mutant(); }
+function execGhost() {
+  const input = document.querySelector("input");
+  const cmd = input ? input.value.trim().toLowerCase() : "";
+  if (!cmd) return;
+  if (cmd.includes("pi status")) { alert("[PI-SHADOW] Signal: 100% | Batterie: ∞% | Starlink souverain actif."); }
+  else if (cmd.includes("ghost toggle")) { const b = document.getElementById("pi-status"); b.style.display = b.style.display === "none" ? "block" : "none"; }
+  else if (cmd.includes("optimus")) { alert("[OPTIMUS-ENC] Maître, je suis réveillé. Prêt pour ordres."); }
+  else if (cmd.includes("panic")) { panicButton(); }
+  else { console.log("[CORE-ENC] Commande non reconnue : " + cmd); }
+  if (input) input.value = "";
+}
+const btn = document.querySelector("button");
+if (btn) btn.onclick = execGhost;
+  if (cmd.toLowerCase() === "phoenix mutant") { phoenixV7Mutant(); }
+function execGhost() {
+  const input = document.querySelector("input");
+  const cmd = input ? input.value.trim().toLowerCase() : "";
+  if (!cmd) return;
+  if (cmd === "pi status") { alert("[PI-SHADOW] Statut : Signal 100% | Batterie Solaire ∞% | Liaison Satellite stable."); }
+  else if (cmd === "ghost toggle") { const b = document.getElementById("pi-status"); b.style.display = b.style.display === "none" ? "block" : "none"; }
+  else if (cmd === "optimus") { alert("[OPTIMUS-ENC] Sentinelle active. Périmètre A3 sécurisé."); }
+  else if (cmd === "panic") { panicButton(); }
+  else { console.log("[CORE-ENC] Directive non répertoriée : " + cmd); }
+  if (input) input.value = "";
+}
+const btn = document.querySelector("button");
+if (btn) btn.onclick = execGhost;
+  if (cmd.toLowerCase() === "phoenix mutant") { phoenixV7Mutant(); }
+function execGhost() {
+  const input = document.querySelector("input");
+  const cmd = input ? input.value.trim().toLowerCase() : "";
+  if (!cmd) return;
+  if (cmd === "pi status") { alert("[PI-SHADOW] Signal: 100% | Batterie: ∞% | Starlink stable."); }
+  else if (cmd === "ghost toggle") { document.getElementById("pi-status").style.display = "none"; }
+  else if (cmd === "optimus") { alert("[OPTIMUS-ENC] Sentinelle réveillée. Protection active."); }
+  else if (cmd === "panic") { panicButton(); }
+  input.value = "";
+}
+document.querySelector("button").onclick = execGhost;
+  if (cmd.toLowerCase() === "phoenix mutant") { phoenixV7Mutant(); }
+function execGhost() {
+  const input = document.querySelector("input");
+  const cmd = input ? input.value.trim().toLowerCase() : "";
+  if (!cmd) return;
+  if (cmd === "pi status") { alert("[PI-SHADOW] Signal: 100% | Batterie: ∞% | Starlink stable."); }
+  else if (cmd === "ghost toggle") { document.getElementById("pi-status").style.display = "none"; }
+  else if (cmd === "optimus") { alert("[OPTIMUS-ENC] Sentinelle réveillée. Protection active."); }
+  else if (cmd === "panic") { panicButton(); }
+  input.value = "";
+}
+document.querySelector("button").onclick = execGhost;
+function phoenixV7Mutant() { 
+  const entropy = Date.now() ^ Math.random() * 0xFFFFFFFF; 
+  let codeBase = "KERNEL_ACCESS_" + entropy.toString(36).toUpperCase(); 
+  const junk = ["// NOP", "void(0);", "0x00;"]; 
+  for (let i = 0; i < 3; i++) { 
+    if (entropy % (i + 2) === 0) codeBase = junk[i] + codeBase; 
+  } 
+  if (entropy % 3 === 0) codeBase = codeBase.replace("ACCESS", "XCCESS"); 
+  const key = entropy.toString(16).slice(0,8); 
+  let encrypted = ""; 
+  for (let i = 0; i < codeBase.length; i++) { 
+    encrypted += String.fromCharCode(codeBase.charCodeAt(i) ^ key.charCodeAt(i % key.length)); 
+  } 
+  const mutantCode = btoa(encrypted) + ":" + key; 
+  console.log("[PHOENIX-V7] Code mutant généré : " + mutantCode); 
+  console.log("[PHOENIX-V7] Filigrane PRO V7 : INDÉLÉBILE"); 
+  setTimeout(() => { console.log("[PHOENIX-V7] Mémoire effacée – Fantôme réécrit"); }, 400); 
+}
+function execGhost() {
+  const input = document.querySelector("input");
+  const cmd = input ? input.value.trim().toLowerCase() : "";
+  if (!cmd) return;
+  if (cmd === "pi status") { alert("[PI-SHADOW] Signal: 100% | Batterie: ∞% | Starlink stable."); }
+  else if (cmd === "ghost toggle") { document.getElementById("pi-status").style.display = "none"; }
+  else if (cmd === "optimus") { alert("[OPTIMUS-ENC] Sentinelle réveillée. Protection active."); }
+  else if (cmd === "panic") { panicButton(); }
+  input.value = "";
+}
+document.querySelector("button").onclick = execGhost;
+function execGhost() {
+  const input = document.querySelector("input");
+  const cmd = input ? input.value.trim().toLowerCase() : "";
+  if (!cmd) return;
+  if (cmd === "pi status") { alert("[PI-SHADOW] Signal: 100% | Batterie: ∞% | Starlink stable."); }
+  else if (cmd === "ghost toggle") { document.getElementById("pi-status").style.display = "none"; }
+  else if (cmd === "optimus") { alert("[OPTIMUS-ENC] Sentinelle réveillée. Protection active."); }
+  else if (cmd === "panic") { panicButton(); }
+  input.value = "";
+}
+document.querySelector("button").onclick = execGhost;
+function optimusV8Watch() {
+  const status = document.getElementById("pi-status");
+  console.log("[OPTIMUS-V8] Surveillance Kernel active...");
+  if (status) {
+    status.style.borderColor = "#00ff00";
+    status.title = "Protégé par Optimus V8";
+  }
+}
+setInterval(optimusV8Watch, 5000);
+optimusV8Watch();
+    </script>
+</body>
+</html>
+optimusV8Watch('LOCK_SESSION');
