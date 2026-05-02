@@ -1,0 +1,222 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.zc-shell{min-height:600px;background:var(--color-background-tertiary);padding:1.5rem;border-radius:var(--border-radius-lg)}
+.zc-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.zc-logo{display:flex;align-items:center;gap:10px}
+.zc-logo-mark{width:32px;height:32px;border-radius:6px;background:var(--color-background-info);display:flex;align-items:center;justify-content:center}
+.zc-logo-mark svg{width:18px;height:18px}
+.zc-title{font-size:16px;font-weight:500;color:var(--color-text-primary);letter-spacing:.5px}
+.zc-subtitle{font-size:11px;color:var(--color-text-secondary);letter-spacing:1px;text-transform:uppercase}
+.zc-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-text-success)}
+.zc-dot{width:7px;height:7px;border-radius:50%;background:var(--color-background-success)}
+.zc-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:1rem}
+.zc-metric{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px 14px}
+.zc-metric-label{font-size:11px;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.zc-metric-val{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.zc-metric-delta{font-size:11px;color:var(--color-text-success);margin-top:2px}
+.zc-main{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-bottom:1rem}
+.zc-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem}
+.zc-card-title{font-size:13px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.8px;margin-bottom:1rem}
+.zc-chat-wrap{display:flex;flex-direction:column;gap:8px;min-height:220px;max-height:220px;overflow-y:auto;margin-bottom:12px;padding-right:4px}
+.zc-msg{padding:9px 13px;border-radius:var(--border-radius-md);font-size:13px;line-height:1.5;max-width:92%}
+.zc-msg.user{background:var(--color-background-info);color:var(--color-text-info);align-self:flex-end;border-radius:var(--border-radius-md) var(--border-radius-md) 4px var(--border-radius-md)}
+.zc-msg.ai{background:var(--color-background-secondary);color:var(--color-text-primary);align-self:flex-start;border-radius:var(--border-radius-md) var(--border-radius-md) var(--border-radius-md) 4px}
+.zc-msg.ai.typing{opacity:.6}
+.zc-input-row{display:flex;gap:8px}
+.zc-input-row input{flex:1;font-size:13px;padding:8px 12px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary)}
+.zc-input-row button{font-size:13px;padding:8px 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-info);color:var(--color-text-info);cursor:pointer;font-weight:500}
+.zc-modules{display:flex;flex-direction:column;gap:8px}
+.zc-module{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);cursor:pointer;transition:background .15s}
+.zc-module:hover{background:var(--color-background-tertiary)}
+.zc-module-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.zc-module-name{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.zc-module-tag{font-size:11px;color:var(--color-text-secondary)}
+.zc-bar-wrap{display:flex;flex-direction:column;gap:10px}
+.zc-bar-row{display:flex;flex-direction:column;gap:4px}
+.zc-bar-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--color-text-secondary)}
+.zc-bar-track{height:6px;background:var(--color-background-tertiary);border-radius:4px;overflow:hidden}
+.zc-bar-fill{height:100%;border-radius:4px;transition:width .8s ease}
+.zc-bottom{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.zc-log{font-size:12px;font-family:var(--font-mono);color:var(--color-text-secondary);display:flex;flex-direction:column;gap:5px;min-height:80px}
+.zc-log-line{display:flex;gap:8px}
+.zc-log-time{color:var(--color-text-tertiary);flex-shrink:0}
+.zc-log-ok{color:var(--color-text-success)}
+.zc-log-warn{color:var(--color-text-warning)}
+</style>
+
+<h2 class="sr-only">Z-CORE OS IA — tableau de bord principal avec assistant IA, modules actifs et métriques système</h2>
+
+<div class="zc-shell">
+  <div class="zc-topbar">
+    <div class="zc-logo">
+      <div class="zc-logo-mark">
+        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="3,15 9,3 15,15" fill="none" stroke="#185FA5" stroke-width="1.5"/>
+          <line x1="5.5" y1="11" x2="12.5" y2="11" stroke="#185FA5" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="zc-title">Z-CORE OS IA</div>
+        <div class="zc-subtitle">Intelligence Artificielle · Noyau v2.6</div>
+      </div>
+    </div>
+    <div class="zc-status"><div class="zc-dot"></div>Systèmes opérationnels</div>
+  </div>
+
+  <div class="zc-grid">
+    <div class="zc-metric">
+      <div class="zc-metric-label">Requêtes / s</div>
+      <div class="zc-metric-val" id="m-req">2 847</div>
+      <div class="zc-metric-delta" id="m-req-d">+12% vs hier</div>
+    </div>
+    <div class="zc-metric">
+      <div class="zc-metric-label">Latence moy.</div>
+      <div class="zc-metric-val" id="m-lat">148 ms</div>
+      <div class="zc-metric-delta">Optimal</div>
+    </div>
+    <div class="zc-metric">
+      <div class="zc-metric-label">Modèles actifs</div>
+      <div class="zc-metric-val">7</div>
+      <div class="zc-metric-delta">3 en veille</div>
+    </div>
+    <div class="zc-metric">
+      <div class="zc-metric-label">Précision</div>
+      <div class="zc-metric-val">97.4%</div>
+      <div class="zc-metric-delta">+0.3 ce mois</div>
+    </div>
+  </div>
+
+  <div class="zc-main">
+    <div class="zc-card">
+      <div class="zc-card-title">Assistant Z-CORE IA</div>
+      <div class="zc-chat-wrap" id="chat"></div>
+      <div class="zc-input-row">
+        <input id="zinput" placeholder="Interrogez le noyau Z-CORE…" onkeydown="if(event.key==='Enter')sendMsg()"/>
+        <button onclick="sendMsg()">Envoyer</button>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="zc-card" style="flex:1">
+        <div class="zc-card-title">Modules actifs</div>
+        <div class="zc-modules">
+          <div class="zc-module">
+            <div class="zc-module-icon" style="background:var(--color-background-info)">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="#185FA5" stroke-width="1.3"/><path d="M5 7l1.5 1.5L9 5" stroke="#185FA5" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+            <div><div class="zc-module-name">Analyse sémantique</div><div class="zc-module-tag">NLP · Actif</div></div>
+          </div>
+          <div class="zc-module">
+            <div class="zc-module-icon" style="background:var(--color-background-success)">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="4" width="10" height="6" rx="1.5" stroke="#0F6E56" stroke-width="1.3"/><line x1="7" y1="2" x2="7" y2="4" stroke="#0F6E56" stroke-width="1.3"/></svg>
+            </div>
+            <div><div class="zc-module-name">Vision IA</div><div class="zc-module-tag">CV · Actif</div></div>
+          </div>
+          <div class="zc-module">
+            <div class="zc-module-icon" style="background:var(--color-background-warning)">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2 L12 11 L2 11 Z" stroke="#854F0B" stroke-width="1.3" fill="none"/></svg>
+            </div>
+            <div><div class="zc-module-name">Détection anomalies</div><div class="zc-module-tag">Alerte · Veille</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="zc-bottom">
+    <div class="zc-card">
+      <div class="zc-card-title">Charge des modèles</div>
+      <div class="zc-bar-wrap">
+        <div class="zc-bar-row">
+          <div class="zc-bar-meta"><span>GPT-Z Core</span><span>82%</span></div>
+          <div class="zc-bar-track"><div class="zc-bar-fill" style="width:82%;background:#185FA5"></div></div>
+        </div>
+        <div class="zc-bar-row">
+          <div class="zc-bar-meta"><span>Vision Encoder</span><span>64%</span></div>
+          <div class="zc-bar-track"><div class="zc-bar-fill" style="width:64%;background:#0F6E56"></div></div>
+        </div>
+        <div class="zc-bar-row">
+          <div class="zc-bar-meta"><span>Embedding XL</span><span>47%</span></div>
+          <div class="zc-bar-track"><div class="zc-bar-fill" style="width:47%;background:#534AB7"></div></div>
+        </div>
+        <div class="zc-bar-row">
+          <div class="zc-bar-meta"><span>Classifier Z2</span><span>29%</span></div>
+          <div class="zc-bar-track"><div class="zc-bar-fill" style="width:29%;background:#BA7517"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="zc-card">
+      <div class="zc-card-title">Journal système</div>
+      <div class="zc-log" id="syslog">
+        <div class="zc-log-line"><span class="zc-log-time">09:14:02</span><span class="zc-log-ok">[OK]</span><span>Noyau Z-CORE initialisé</span></div>
+        <div class="zc-log-line"><span class="zc-log-time">09:14:05</span><span class="zc-log-ok">[OK]</span><span>7 modèles chargés</span></div>
+        <div class="zc-log-line"><span class="zc-log-time">09:15:11</span><span class="zc-log-ok">[OK]</span><span>API connectée · 200ms</span></div>
+        <div class="zc-log-line"><span class="zc-log-time">09:16:33</span><span class="zc-log-warn">[WARN]</span><span>Charge élevée · GPT-Z</span></div>
+        <div class="zc-log-line" id="log-last"><span class="zc-log-time">09:17:01</span><span class="zc-log-ok">[OK]</span><span>Tableau de bord actif</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const chat = document.getElementById('chat');
+const input = document.getElementById('zinput');
+
+function addMsg(text, role, typing) {
+  const d = document.createElement('div');
+  d.className = 'zc-msg ' + role + (typing ? ' typing' : '');
+  d.textContent = text;
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+  return d;
+}
+
+addMsg('Bonjour, je suis Z-CORE IA. Comment puis-je vous aider aujourd\'hui ?', 'ai');
+
+async function sendMsg() {
+  const txt = input.value.trim();
+  if (!txt) return;
+  input.value = '';
+  addMsg(txt, 'user');
+
+  const thinking = addMsg('Z-CORE réfléchit…', 'ai', true);
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: "Tu es Z-CORE, l'assistant IA du système d'exploitation Z-CORE OS. Tu es précis, concis, orienté performance et technique. Tu réponds en français, de manière courte et directe (2-4 phrases max). Tu parles de toi-même comme 'Z-CORE IA'. Le tableau de bord gère des modèles d'IA, des métriques systèmes, et des modules d'intelligence artificielle.",
+        messages: [{ role: 'user', content: txt }]
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.find(b => b.type === 'text')?.text || 'Erreur de traitement.';
+    thinking.remove();
+    addMsg(reply, 'ai');
+
+    const now = new Date();
+    const t = now.toTimeString().slice(0,8);
+    const log = document.getElementById('syslog');
+    const line = document.createElement('div');
+    line.className = 'zc-log-line';
+    line.innerHTML = `<span class="zc-log-time">${t}</span><span class="zc-log-ok">[OK]</span><span>Requête traitée · IA</span>`;
+    log.appendChild(line);
+  } catch(e) {
+    thinking.textContent = 'Erreur de connexion au noyau.';
+    thinking.classList.remove('typing');
+  }
+}
+
+setInterval(() => {
+  const v = 2700 + Math.round(Math.random() * 400);
+  document.getElementById('m-req').textContent = v.toLocaleString('fr-FR');
+  const lat = 130 + Math.round(Math.random() * 50);
+  document.getElementById('m-lat').textContent = lat + ' ms';
+}, 4000);
+</script>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZCORE • Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --bg: #0a0a0a;
+            --card: #111111;
+            --accent: #00ff9d;
+        }
+        
+        * {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg);
+            color: #e0e0e0;
+        }
+        
+        .glass {
+            background: rgba(17, 17, 17, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        
+        .accent-glow {
+            box-shadow: 0 0 25px -5px rgb(0 255 157 / 0.3);
+        }
+        
+        .metric-value {
+            font-size: 2.75rem;
+            line-height: 1;
+            font-weight: 700;
+        }
+        
+        .network-graph {
+            height: 240px;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-10">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-black font-bold text-2xl">Z</div>
+                <div>
+                    <h1 class="text-4xl font-bold tracking-tighter">ZCORE DASHBOARD</h1>
+                    <p class="text-emerald-400 text-sm">Système de monitoring • v2.4.1</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2 bg-zinc-900 px-4 py-2 rounded-3xl text-sm">
+                    <div class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <span class="text-emerald-400 font-medium">En ligne</span>
+                </div>
+                
+                <div class="text-right">
+                    <p class="text-sm text-zinc-400">01 Mai 2026</p>
+                    <p id="current-time" class="text-xl font-mono font-semibold"></p>
+                </div>
+                
+                <button onclick="toggleSidebar()" 
+                        class="w-11 h-11 glass rounded-2xl flex items-center justify-center hover:bg-white/10 transition-colors">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Main Metrics -->
+            <div class="lg:col-span-8">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- CPU -->
+                    <div class="glass rounded-3xl p-6 accent-glow">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <i class="fa-solid fa-microchip text-3xl text-emerald-400"></i>
+                                <p class="mt-4 text-sm text-zinc-400">CPU</p>
+                            </div>
+                            <span id="cpu-percent" class="metric-value text-emerald-400">47</span>
+                        </div>
+                        <div class="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                            <div id="cpu-bar" class="h-full w-1/2 bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-full"></div>
+                        </div>
+                    </div>
+
+                    <!-- RAM -->
+                    <div class="glass rounded-3xl p-6">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <i class="fa-solid fa-memory text-3xl text-sky-400"></i>
+                                <p class="mt-4 text-sm text-zinc-400">RAM</p>
+                            </div>
+                            <span id="ram-percent" class="metric-value text-sky-400">68</span>
+                        </div>
+                        <div class="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                            <div id="ram-bar" class="h-full w-2/3 bg-gradient-to-r from-sky-400 to-blue-400 rounded-full"></div>
+                        </div>
+                    </div>
+
+                    <!-- Storage -->
+                    <div class="glass rounded-3xl p-6">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <i class="fa-solid fa-hard-drive text-3xl text-amber-400"></i>
+                                <p class="mt-4 text-sm text-zinc-400">Stockage</p>
+                            </div>
+                            <span id="storage-percent" class="metric-value text-amber-400">34</span>
+                        </div>
+                        <div class="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                            <div id="storage-bar" class="h-full w-1/3 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full"></div>
+                        </div>
+                    </div>
+
+                    <!-- Uptime -->
+                    <div class="glass rounded-3xl p-6">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <i class="fa-solid fa-clock text-3xl text-violet-400"></i>
+                                <p class="mt-4 text-sm text-zinc-400">Uptime</p>
+                            </div>
+                            <span class="metric-value text-violet-400">99.98%</span>
+                        </div>
+                        <p class="text-2xl font-mono text-zinc-400">142 jours</p>
+                    </div>
+                </div>
+
+                <!-- Network Monitoring Module -->
+                <div class="mt-8 glass rounded-3xl p-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-wifi text-3xl text-emerald-400"></i>
+                            <div>
+                                <h2 class="text-2xl font-semibold">Monitoring Réseau</h2>
+                                <p class="text-zinc-400 text-sm">Temps réel • Latence • Bande passante</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6 text-sm">
+                            <div>
+                                <span class="text-emerald-400 font-mono text-2xl" id="download">248</span>
+                                <span class="text-xs text-zinc-500 block">↓ MB/s</span>
+                            </div>
+                            <div>
+                                <span class="text-rose-400 font-mono text-2xl" id="upload">87</span>
+                                <span class="text-xs text-zinc-500 block">↑ MB/s</span>
+                            </div>
+                            <div>
+                                <span class="text-amber-400 font-mono text-2xl" id="latency">12</span>
+                                <span class="text-xs text-zinc-500 block">ms</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Graph -->
+                    <canvas id="networkChart" class="network-graph w-full"></canvas>
+
+                    <!-- Live connections -->
+                    <div class="mt-8 grid grid-cols-3 gap-4">
+                        <div class="bg-zinc-900/50 rounded-2xl p-4">
+                            <p class="text-xs text-zinc-400 mb-1">Connexions actives</p>
+                            <p id="active-conns" class="text-4xl font-semibold text-white">1,284</p>
+                        </div>
+                        <div class="bg-zinc-900/50 rounded-2xl p-4">
+                            <p class="text-xs text-zinc-400 mb-1">Paquets/s</p>
+                            <p id="packets" class="text-4xl font-semibold text-white">42.8k</p>
+                        </div>
+                        <div class="bg-zinc-900/50 rounded-2xl p-4">
+                            <p class="text-xs text-zinc-400 mb-1">Erreurs</p>
+                            <p id="errors" class="text-4xl font-semibold text-rose-400">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-4 space-y-6">
+                <!-- Status -->
+                <div class="glass rounded-3xl p-6">
+                    <h3 class="text-lg font-semibold mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-server"></i>
+                        Services
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                                <span>API Core</span>
+                            </div>
+                            <span class="text-emerald-400 text-sm font-medium">99.9%</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                                <span>Database</span>
+                            </div>
+                            <span class="text-emerald-400 text-sm font-medium">100%</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 bg-amber-400 rounded-full"></div>
+                                <span>Cache Layer</span>
+                            </div>
+                            <span class="text-amber-400 text-sm font-medium">97.4%</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                                <span>Edge CDN</span>
+                            </div>
+                            <span class="text-emerald-400 text-sm font-medium">99.8%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logs -->
+                <div class="glass rounded-3xl p-6 h-96 overflow-hidden">
+                    <h3 class="text-lg font-semibold mb-4">Derniers logs</h3>
+                    <div id="logs" class="font-mono text-xs space-y-3 text-zinc-400 overflow-auto h-[calc(100%-2rem)] pr-2 custom-scroll">
+                        <!-- JS populated -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Bar -->
+    <div class="fixed bottom-0 left-0 right-0 bg-black/90 border-t border-white/10 py-3 px-8 text-xs flex items-center justify-between text-zinc-400">
+        <div class="flex items-center gap-8">
+            <div>CPU Temp: <span class="text-white font-medium">41°C</span></div>
+            <div>Network: <span class="text-emerald-400">Stable</span></div>
+        </div>
+        <div class="font-mono">ZCORE • Built with ❤️ for performance</div>
+    </div>
+
+    <script>
+        // Tailwind script already included via CDN
+        
+        // Real-time clock
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Fake metrics animation
+        function animateMetrics() {
+            const cpu = Math.floor(35 + Math.random() * 35);
+            const ram = Math.floor(55 + Math.random() * 30);
+            const storage = Math.floor(20 + Math.random() * 40);
+            
+            document.getElementById('cpu-percent').textContent = cpu;
+            document.getElementById('ram-percent').textContent = ram;
+            document.getElementById('storage-percent').textContent = storage;
+            
+            document.getElementById('cpu-bar').style.width = cpu + '%';
+            document.getElementById('ram-bar').style.width = ram + '%';
+            document.getElementById('storage-bar').style.width = storage + '%';
+        }
+        setInterval(animateMetrics, 2800);
+        animateMetrics();
+
+        // Network Chart
+        let ctx = document.getElementById('networkChart');
+        let chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array(40).fill(''),
+                datasets: [
+                    {
+                        label: 'Download',
+                        data: Array(40).fill(0).map(() => Math.random() * 300),
+                        borderColor: '#00ff9d',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Upload',
+                        data: Array(40).fill(0).map(() => Math.random() * 120),
+                        borderColor: '#f43f5e',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#666' } },
+                    x: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#666' } }
+                },
+                elements: { line: { borderJoinStyle: 'round' } }
+            }
+        });
+
+        // Simulate live network data
+        function updateNetwork() {
+            const download = Math.floor(180 + Math.random() * 150);
+            const upload = Math.floor(60 + Math.random() * 70);
+            const latency = Math.floor(8 + Math.random() * 18);
+            
+            document.getElementById('download').textContent = download;
+            document.getElementById('upload').textContent = upload;
+            document.getElementById('latency').textContent = latency;
+            document.getElementById('active-conns').textContent = Math.floor(900 + Math.random() * 800).toLocaleString('fr-FR');
+            document.getElementById('packets').textContent = (Math.floor(35 + Math.random() * 25) + 'k');
+            
+            // Update chart
+            chart.data.datasets[0].data.shift();
+            chart.data.datasets[0].data.push(download);
+            chart.data.datasets[1].data.shift();
+            chart.data.datasets[1].data.push(upload);
+            chart.update('none');
+        }
+        setInterval(updateNetwork, 1200);
+
+        // Fake logs
+        const logMessages = [
+            "[INFO] Connexion établie avec edge-01.zcore.net",
+            "[WARN] Latence élevée sur routeur FRA-3",
+            "[INFO] Backup complet terminé en 847ms",
+            "[DEBUG] Cache invalidé pour /api/v2/users",
+            "[INFO] Nouvelle session utilisateur authentifiée"
+        ];
+        
+        function addLog() {
+            const logsDiv = document.getElementById('logs');
+            const log = document.createElement('div');
+            log.textContent = `> ${new Date().toLocaleTimeString('fr-FR')} ${logMessages[Math.floor(Math.random()*logMessages.length)]}`;
+            logsDiv.appendChild(log);
+            if (logsDiv.children.length > 12) logsDiv.removeChild(logsDiv.children[0]);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+        setInterval(addLog, 3200);
+        // Initial logs
+        for (let i = 0; i < 8; i++) addLog();
+
+        // Responsive + mobile menu
+        function toggleSidebar() {
+            alert("Menu latéral (version mobile) - Dashboard déjà 100% responsive grâce à Tailwind.");
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "r" && e.ctrlKey) {
+                e.preventDefault();
+                location.reload();
+            }
+        });
+
+        console.log('%c✅ Dashboard ZCORE chargé avec succès !', 'color:#00ff9d; font-family:monospace');
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</body>
+</html>
