@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ZCORE — Dashboard</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:       #060a0f;
+      --panel:    #0b1118;
+      --border:   #1a2a3a;
+      --accent:   #00e5ff;
+      --accent2:  #ff3c5e;
+      --accent3:  #39ff14;
+      --dim:      #1e3a4a;
+      --text:     #c8dde8;
+      --subtext:  #4a6a7a;
+      --font-mono: 'Share Tech Mono', monospace;
+      --font-ui:   'Rajdhani', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-ui);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─── scanlines overlay ─── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,229,255,0.018) 2px,
+        rgba(0,229,255,0.018) 4px
+      );
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ─── Header ─── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 32px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, #0b1118 0%, #0e1820 100%);
+      position: sticky; top: 0; z-index: 100;
+    }
+
+    .logo {
+      font-family: var(--font-mono);
+      font-size: 1.6rem;
+      color: var(--accent);
+      letter-spacing: 0.12em;
+      text-shadow: 0 0 18px rgba(0,229,255,0.6);
+    }
+    .logo span { color: var(--accent2); }
+
+    .header-status {
+      display: flex; gap: 24px; align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--subtext);
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent3);
+      box-shadow: 0 0 8px var(--accent3);
+      animation: pulse 2s infinite;
+      display: inline-block; margin-right: 6px;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; } 50% { opacity: 0.3; }
+    }
+
+    .header-time {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--accent);
+      opacity: 0.8;
+    }
+
+    /* ─── Layout ─── */
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 28px 32px;
+      display: grid;
+      gap: 20px;
+    }
+
+    /* ─── KPI row ─── */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .kpi-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--accent);
+      padding: 18px 22px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+    .kpi-card:hover { border-color: var(--accent2); }
+    .kpi-card::after {
+      content: '';
+      position: absolute; top: 0; right: 0;
+      width: 48px; height: 48px;
+      background: radial-gradient(circle at top right, rgba(0,229,255,0.08), transparent 70%);
+    }
+    .kpi-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--subtext);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .kpi-value {
+      font-family: var(--font-mono);
+      font-size: 2rem;
+      color: var(--accent);
+      line-height: 1;
+      text-shadow: 0 0 12px rgba(0,229,255,0.4);
+    }
+    .kpi-value.red  { color: var(--accent2); text-shadow: 0 0 12px rgba(255,60,94,0.4); }
+    .kpi-value.green{ color: var(--accent3); text-shadow: 0 0 12px rgba(57,255,20,0.4); }
+    .kpi-sub {
+      font-size: 0.72rem;
+      color: var(--subtext);
+      margin-top: 4px;
+    }
+
+    /* ─── Main chart panel ─── */
+    .chart-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 24px 28px;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .panel-title {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .panel-title::before {
+      content: '// ';
+      color: var(--subtext);
+    }
+
+    .legend-row {
+      display: flex; gap: 20px;
+    }
+    .legend-item {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--subtext);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .legend-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      height: 280px;
+    }
+
+    /* ─── Bottom row ─── */
+    .bottom-row {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 20px;
+    }
+
+    /* ─── Traffic table ─── */
+    .traffic-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 24px 28px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+    }
+    thead th {
+      text-align: left;
+      padding: 8px 12px;
+      color: var(--subtext);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    tbody tr {
+      transition: background 0.2s;
+    }
+    tbody tr:hover { background: rgba(0,229,255,0.04); }
+    tbody td {
+      padding: 10px 12px;
+      color: var(--text);
+      border-bottom: 1px solid rgba(26,42,58,0.5);
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      font-size: 0.6rem;
+      border-radius: 2px;
+      letter-spacing: 0.08em;
+    }
+    .badge-ok  { background: rgba(57,255,20,0.12); color: var(--accent3); border: 1px solid rgba(57,255,20,0.3); }
+    .badge-warn{ background: rgba(255,200,0,0.12);  color: #ffc800;        border: 1px solid rgba(255,200,0,0.3); }
+    .badge-err { background: rgba(255,60,94,0.12);  color: var(--accent2); border: 1px solid rgba(255,60,94,0.3); }
+
+    /* ─── GRONDIN panel ─── */
+    .grondin-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent2);
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .grondin-title {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      color: var(--accent2);
+      text-shadow: 0 0 10px rgba(255,60,94,0.5);
+      letter-spacing: 0.15em;
+    }
+    .grondin-title span {
+      font-size: 0.6rem;
+      color: var(--subtext);
+      letter-spacing: 0.05em;
+      display: block;
+      margin-top: 2px;
+    }
+
+    .grondin-params {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .param-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .param-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--subtext);
+      letter-spacing: 0.08em;
+    }
+    .param-select {
+      background: #0d1922;
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      padding: 4px 8px;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .param-select:focus { border-color: var(--accent2); }
+
+    .grondin-log {
+      background: #060a0f;
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--subtext);
+      height: 100px;
+      overflow-y: auto;
+      line-height: 1.7;
+    }
+    .log-line { color: var(--text); }
+    .log-line.ok  { color: var(--accent3); }
+    .log-line.warn{ color: #ffc800; }
+    .log-line.err { color: var(--accent2); }
+    .log-line.info{ color: var(--accent); }
+
+    /* ─── GRONDIN BUTTON ─── */
+    .btn-grondin {
+      position: relative;
+      background: transparent;
+      border: 2px solid var(--accent2);
+      color: var(--accent2);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      letter-spacing: 0.18em;
+      padding: 14px 22px;
+      cursor: pointer;
+      text-transform: uppercase;
+      overflow: hidden;
+      transition: color 0.25s;
+      width: 100%;
+      text-align: center;
+    }
+    .btn-grondin::before {
+      content: '';
+      position: absolute; top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: var(--accent2);
+      transition: left 0.25s ease;
+      z-index: 0;
+    }
+    .btn-grondin:hover::before { left: 0; }
+    .btn-grondin:hover { color: #060a0f; }
+    .btn-grondin span { position: relative; z-index: 1; }
+    .btn-grondin:disabled {
+      opacity: 0.5; cursor: not-allowed;
+    }
+    .btn-grondin:disabled::before { display: none; }
+
+    /* progress bar */
+    .grondin-progress {
+      height: 3px;
+      background: var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .grondin-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--accent2);
+      box-shadow: 0 0 8px var(--accent2);
+      transition: width 0.3s linear;
+    }
+
+    /* ─── Footer ─── */
+    footer {
+      padding: 16px 32px;
+      border-top: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--subtext);
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════ HEADER ════════════════ -->
+<header>
+  <div class="logo">Z<span>CORE</span> // NETWORK OPS</div>
+  <div class="header-status">
+    <div><span class="status-dot"></span>SYSTÈME ACTIF</div>
+    <div>NŒUDS: 12 / 12</div>
+    <div>LATENCE MOY: <span id="hdr-lat" style="color:var(--accent)">—</span> ms</div>
+  </div>
+  <div class="header-time" id="clock">—</div>
+</header>
+
+<!-- ════════════════ MAIN ════════════════ -->
+<main>
+
+  <!-- KPI row -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">BANDE PASSANTE</div>
+      <div class="kpi-value" id="kpi-bw">—</div>
+      <div class="kpi-sub">Mbps entrant / sortant</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">PAQUETS / SEC</div>
+      <div class="kpi-value green" id="kpi-pps">—</div>
+      <div class="kpi-sub">Débit moyen</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">PERTE DE PAQUETS</div>
+      <div class="kpi-value red" id="kpi-loss">—</div>
+      <div class="kpi-sub">% sur 5 min</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">CONNEXIONS ACTIVES</div>
+      <div class="kpi-value" id="kpi-conn">—</div>
+      <div class="kpi-sub">Sessions TCP/UDP</div>
+    </div>
+  </div>
+
+  <!-- Network Chart -->
+  <div class="chart-panel">
+    <div class="panel-header">
+      <div class="panel-title">MONITORING RÉSEAU — TEMPS RÉEL</div>
+      <div class="legend-row">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#00e5ff"></div>ENTRANT
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#ff3c5e"></div>SORTANT
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#39ff14"></div>LATENCE (ms)
+        </div>
+      </div>
+    </div>
+    <div class="chart-wrapper">
+      <canvas id="netChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Bottom row -->
+  <div class="bottom-row">
+
+    <!-- Traffic table -->
+    <div class="traffic-panel">
+      <div class="panel-header">
+        <div class="panel-title">JOURNAL TRAFIC</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>SOURCE</th>
+            <th>DESTINATION</th>
+            <th>PROTO</th>
+            <th>OCTETS</th>
+            <th>ÉTAT</th>
+          </tr>
+        </thead>
+        <tbody id="traffic-body">
+        </tbody>
+      </table>
+    </div>
+
+    <!-- GRONDIN panel -->
+    <div class="grondin-panel">
+      <div>
+        <div class="grondin-title">
+          GRONDIN v2
+          <span>ANALYSE AVANCÉE DE RÉSEAU</span>
+        </div>
+      </div>
+
+      <div class="grondin-params">
+        <div class="param-row">
+          <div class="param-label">MODE SCAN</div>
+          <select class="param-select" id="g-mode">
+            <option>DEEP_PACKET</option>
+            <option>FINGERPRINT</option>
+            <option>ANOMALY_DETECT</option>
+            <option>FULL_SPECTRUM</option>
+          </select>
+        </div>
+        <div class="param-row">
+          <div class="param-label">INTENSITÉ</div>
+          <select class="param-select" id="g-intensity">
+            <option>FURTIF</option>
+            <option>NORMAL</option>
+            <option selected>AGRESSIF</option>
+          </select>
+        </div>
+        <div class="param-row">
+          <div class="param-label">CIBLE</div>
+          <select class="param-select" id="g-target">
+            <option>192.168.1.0/24</option>
+            <option>10.0.0.0/8</option>
+            <option>TOUS LES NŒUDS</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grondin-progress">
+        <div class="grondin-progress-bar" id="g-bar"></div>
+      </div>
+
+      <div class="grondin-log" id="g-log">
+        <div class="log-line info">[ZCORE] GRONDIN v2 prêt. En attente de lancement.</div>
+      </div>
+
+      <button class="btn-grondin" id="btn-grondin" onclick="lancerGrondin()">
+        <span>⚡ LANCER GRONDIN v2</span>
+      </button>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div>ZCORE NETWORK OPS v2.4.1 — CONFIDENTIEL</div>
+  <div id="footer-ts">—</div>
+</footer>
+
+<!-- ════════════════ SCRIPTS ════════════════ -->
+<script>
+/* ── Clock ── */
+function tick() {
+  const now = new Date();
+  const s = now.toISOString().replace('T',' ').substring(0,19) + ' UTC';
+  document.getElementById('clock').textContent = s;
+  document.getElementById('footer-ts').textContent = 'SESSION: ' + s;
+}
+tick(); setInterval(tick, 1000);
+
+/* ── Helpers ── */
+const rand = (a,b) => +(Math.random()*(b-a)+a).toFixed(2);
+const randInt = (a,b) => Math.floor(Math.random()*(b-a+1)+a);
+
+/* ── KPI live update ── */
+function updateKPIs() {
+  document.getElementById('kpi-bw').textContent   = rand(120,980) + ' Mbps';
+  document.getElementById('kpi-pps').textContent  = randInt(8000,95000).toLocaleString();
+  document.getElementById('kpi-loss').textContent = rand(0.01, 3.5) + '%';
+  document.getElementById('kpi-conn').textContent = randInt(200, 1800).toLocaleString();
+  document.getElementById('hdr-lat').textContent  = randInt(2, 48);
+}
+updateKPIs();
+setInterval(updateKPIs, 2500);
+
+/* ── Chart.js setup ── */
+const MAX_POINTS = 40;
+const labels   = Array.from({length: MAX_POINTS}, (_,i) => `T-${MAX_POINTS-i}`);
+const dataIn   = Array.from({length: MAX_POINTS}, () => rand(100,800));
+const dataOut  = Array.from({length: MAX_POINTS}, () => rand(80,600));
+const dataLat  = Array.from({length: MAX_POINTS}, () => rand(2,60));
+
+const ctx = document.getElementById('netChart').getContext('2d');
+
+// Gradient fills
+const gradIn  = ctx.createLinearGradient(0,0,0,280);
+gradIn.addColorStop(0,  'rgba(0,229,255,0.25)');
+gradIn.addColorStop(1,  'rgba(0,229,255,0)');
+
+const gradOut = ctx.createLinearGradient(0,0,0,280);
+gradOut.addColorStop(0, 'rgba(255,60,94,0.2)');
+gradOut.addColorStop(1, 'rgba(255,60,94,0)');
+
+const netChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels,
+    datasets: [
+      {
+        label: 'Entrant (Mbps)',
+        data: dataIn,
+        borderColor: '#00e5ff',
+        borderWidth: 2,
+        backgroundColor: gradIn,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        pointHoverBackgroundColor: '#00e5ff',
+        yAxisID: 'y',
+      },
+      {
+        label: 'Sortant (Mbps)',
+        data: dataOut,
+        borderColor: '#ff3c5e',
+        borderWidth: 2,
+        backgroundColor: gradOut,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        pointHoverBackgroundColor: '#ff3c5e',
+        yAxisID: 'y',
+      },
+      {
+        label: 'Latence (ms)',
+        data: dataLat,
+        borderColor: '#39ff14',
+        borderWidth: 1.5,
+        borderDash: [4,3],
+        backgroundColor: 'transparent',
+        fill: false,
+        tension: 0.4,
+        pointRadius: 0,
+        yAxisID: 'y2',
+      },
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    animation: { duration: 400 },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0b1118',
+        borderColor: '#1a2a3a',
+        borderWidth: 1,
+        titleColor: '#4a6a7a',
+        bodyColor: '#c8dde8',
+        titleFont: { family: "'Share Tech Mono'", size: 11 },
+        bodyFont:  { family: "'Share Tech Mono'", size: 11 },
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color: '#2a4a5a', font: { family: "'Share Tech Mono'", size: 9 }, maxTicksLimit: 10 },
+        grid:  { color: 'rgba(26,42,58,0.5)' },
+      },
+      y: {
+        position: 'left',
+        ticks: { color: '#00e5ff', font: { family: "'Share Tech Mono'", size: 9 } },
+        grid:  { color: 'rgba(26,42,58,0.4)' },
+        title: { display: true, text: 'Mbps', color: '#2a4a5a',
+                 font: { family: "'Share Tech Mono'", size: 9 } }
+      },
+      y2: {
+        position: 'right',
+        ticks: { color: '#39ff14', font: { family: "'Share Tech Mono'", size: 9 } },
+        grid:  { display: false },
+        title: { display: true, text: 'ms', color: '#2a4a5a',
+                 font: { family: "'Share Tech Mono'", size: 9 } }
+      }
+    }
+  }
+});
+
+/* Push a new data point every 1.5 s */
+setInterval(() => {
+  labels.push('NOW');
+  dataIn.push(rand(100,980));
+  dataOut.push(rand(80,700));
+  dataLat.push(rand(2,65));
+  if (labels.length > MAX_POINTS) {
+    labels.shift(); dataIn.shift(); dataOut.shift(); dataLat.shift();
+  }
+  netChart.update('none');
+}, 1500);
+
+/* ── Traffic table ── */
+const IPS = ['10.0.0.1','10.0.1.22','192.168.0.45','172.16.5.9','10.10.0.3',
+             '192.168.1.100','10.0.2.55','172.20.1.8'];
+const PROTOS = ['TCP','UDP','ICMP','TLS','DNS','HTTP/2','QUIC'];
+const STATES = [
+  {label:'OK',   cls:'badge-ok'},
+  {label:'WARN', cls:'badge-warn'},
+  {label:'ERR',  cls:'badge-err'},
+];
+
+function genRows() {
+  const tbody = document.getElementById('traffic-body');
+  tbody.innerHTML = '';
+  for (let i = 0; i < 8; i++) {
+    const src   = IPS[randInt(0,IPS.length-1)]+':'+randInt(1024,65535);
+    const dst   = IPS[randInt(0,IPS.length-1)]+':'+randInt(80,9443);
+    const proto = PROTOS[randInt(0,PROTOS.length-1)];
+    const bytes = (rand(0.1,999)).toFixed(1)+' KB';
+    const st    = STATES[Math.random()<0.75 ? 0 : Math.random()<0.5 ? 1 : 2];
+    tbody.innerHTML += `
+      <tr>
+        <td style="color:var(--subtext)">${i+1}</td>
+        <td>${src}</td>
+        <td>${dst}</td>
+        <td style="color:var(--accent)">${proto}</td>
+        <td>${bytes}</td>
+        <td><span class="badge ${st.cls}">${st.label}</span></td>
+      </tr>`;
+  }
+}
+genRows();
+setInterval(genRows, 3000);
+
+/* ── GRONDIN v2 ── */
+const LOG_MSGS = [
+  ['info', 'Initialisation du moteur GRONDIN v2...'],
+  ['ok',   'Chargement des signatures: 14 823 règles.'],
+  ['info', 'Démarrage du scan réseau...'],
+  ['info', 'Sondage ARP en cours sur le segment cible...'],
+  ['ok',   'Hôtes actifs détectés: {n}'],
+  ['warn', 'Port inhabituel détecté: 4444/TCP sur 10.0.1.22'],
+  ['info', 'Analyse DPI sur flux TLS...'],
+  ['ok',   'Fingerprinting OS: Linux 6.x (3), Windows 11 (2), Unknown (1)'],
+  ['warn', 'Anomalie de débit détectée: 10.0.2.55 ↑ +340%'],
+  ['info', 'Corrélation des événements SIEM...'],
+  ['err',  'Tentative de scan détectée depuis 172.16.5.9'],
+  ['info', 'Application des contre-mesures automatiques...'],
+  ['ok',   'Règle DROP ajoutée sur fw0: 172.16.5.9/32'],
+  ['ok',   'Rapport intermédiaire généré.'],
+  ['info', 'Analyse approfondie des paquets suspects...'],
+  ['ok',   'Aucun malware confirmé. Score de risque: 3/10'],
+  ['ok',   '✓ ANALYSE GRONDIN v2 TERMINÉE AVEC SUCCÈS'],
+];
+
+async function lancerGrondin() {
+  const btn = document.getElementById('btn-grondin');
+  const bar = document.getElementById('g-bar');
+  const log = document.getElementById('g-log');
+
+  btn.disabled = true;
+  log.innerHTML = '<div class="log-line info">[GRONDIN v2] Démarrage — ' + new Date().toISOString() + '</div>';
+
+  const mode      = document.getElementById('g-mode').value;
+  const intensity = document.getElementById('g-intensity').value;
+  const target    = document.getElementById('g-target').value;
+
+  log.innerHTML += `<div class="log-line">[CONFIG] MODE=${mode} | INTENSITÉ=${intensity} | CIBLE=${target}</div>`;
+
+  for (let i = 0; i < LOG_MSGS.length; i++) {
+    await delay(rand(300, 900));
+    const [type, msg] = LOG_MSGS[i];
+    const txt = msg.replace('{n}', randInt(4,14));
+    const ts  = new Date().toISOString().substring(11,19);
+    log.innerHTML += `<div class="log-line ${type}">[${ts}] ${txt}</div>`;
+    log.scrollTop = log.scrollHeight;
+    const pct = Math.round(((i+1)/LOG_MSGS.length)*100);
+    bar.style.width = pct + '%';
+  }
+
+  btn.disabled = false;
+  btn.querySelector('span').textContent = '⚡ RELANCER GRONDIN v2';
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
+</body>
+</html>
